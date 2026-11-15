@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant QR Menu</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
+
+header {
+  background: #171717;
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+header p {
+  color: #ddd;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 15px;
+}
+
+h2 {
+  margin-top: 25px;
+}
+
+.item {
+  background: white;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 7px #ddd;
+}
+
+.item button {
+  background: #16834a;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 7px;
+}
+
+.cart {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  margin-top: 25px;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.order-btn {
+  width: 100%;
+  padding: 15px;
+  background: #16834a;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 17px;
+  margin-top: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Your Restaurant</h1>
+  <p>Welcome! Order Your Favourite Food</p>
+</header>
+
+<div class="container">
+
+<h2>🍕 Pizza</h2>
+
+<div class="item">
+  <div>
+    <b>Cheese Pizza</b>
+    <p>₹180</p>
+  </div>
+  <button onclick="addItem('Cheese Pizza',180)">Add +</button>
+</div>
+
+<div class="item">
+  <div>
+    <b>Margherita Pizza</b>
+    <p>₹150</p>
+  </div>
+  <button onclick="addItem('Margherita Pizza',150)">Add +</button>
+</div>
+
+<h2>🍔 Burger & Snacks</h2>
+
+<div class="item">
+  <div>
+    <b>Veg Burger</b>
+    <p>₹90</p>
+  </div>
+  <button onclick="addItem('Veg Burger',90)">Add +</button>
+</div>
+
+<div class="item">
+  <div>
+    <b>French Fries</b>
+    <p>₹100</p>
+  </div>
+  <button onclick="addItem('French Fries',100)">Add +</button>
+</div>
+
+<h2>🥤 Drinks</h2>
+
+<div class="item">
+  <div>
+    <b>Cold Coffee</b>
+    <p>₹80</p>
+  </div>
+  <button onclick="addItem('Cold Coffee',80)">Add +</button>
+</div>
+
+<div class="item">
+  <div>
+    <b>Fresh Lime Soda</b>
+    <p>₹60</p>
+  </div>
+  <button onclick="addItem('Fresh Lime Soda',60)">Add +</button>
+</div>
+
+<div class="cart">
+  <h2>🛒 Your Cart</h2>
+  <div id="cartItems">No items added yet.</div>
+
+  <h3>Total: ₹<span id="total">0</span></h3>
+
+  <input type="number" id="table" placeholder="Enter Table Number">
+
+  <input type="text" id="phone"
+  placeholder="Restaurant WhatsApp Number (91XXXXXXXXXX)">
+
+  <button class="order-btn" onclick="sendOrder()">
+    Order on WhatsApp
+  </button>
+</div>
+
+</div>
+
+<script>
+let cart = [];
+
+function addItem(name, price) {
+  let found = cart.find(item => item.name === name);
+
+  if (found) {
+    found.qty++;
+  } else {
+    cart.push({name, price, qty: 1});
+  }
+
+  showCart();
+}
+
+function changeQty(index, amount) {
+  cart[index].qty += amount;
+
+  if (cart[index].qty <= 0) {
+    cart.splice(index, 1);
+  }
+
+  showCart();
+}
+
+function showCart() {
+  let html = "";
+  let total = 0;
+
+  cart.forEach((item, index) => {
+    let amount = item.price * item.qty;
+    total += amount;
+
+    html += `
+      <p>
+        ${item.name} - ₹${item.price}
+        <br>
+        <button onclick="changeQty(${index},-1)">−</button>
+        ${item.qty}
+        <button onclick="changeQty(${index},1)">+</button>
+        = ₹${amount}
+      </p>
+    `;
+  });
+
+  document.getElementById("cartItems").innerHTML =
+    html || "No items added yet.";
+
+  document.getElementById("total").innerText = total;
+}
+
+function sendOrder() {
+  if (cart.length === 0) {
+    alert("Please add items to your cart.");
+    return;
+  }
+
+  let table = document.getElementById("table").value;
+  let phone = document.getElementById("phone").value.replace(/\D/g, "");
+
+  if (!table || !phone) {
+    alert("Please enter table number and WhatsApp number.");
+    return;
+  }
+
+  let message = "NEW RESTAURANT ORDER\n";
+  message += "Table Number: " + table + "\n\n";
+
+  let total = 0;
+
+  cart.forEach(item => {
+    let amount = item.price * item.qty;
+    total += amount;
+    message += item.name + " x " + item.qty +
+      " = ₹" + amount + "\n";
+  });
+
+  message += "\nTotal Amount: ₹" + total;
+
+  window.open(
+    "https://wa.me/" + phone + "?text=" +
+    encodeURIComponent(message),
+    "_blank"
+  );
+}
+</script>
+
+</body>
+</html>
